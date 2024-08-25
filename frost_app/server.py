@@ -15,6 +15,7 @@ async def echo(websocket, path):
     msg = PowertrainCommand()
     async for message in websocket:
         data = json.loads(message)
+        print(f"Received message: {data}")
         print(f"Received data: {data}")
 
         msg.mode = 1
@@ -23,6 +24,7 @@ async def echo(websocket, path):
         msg.rot_vel = float(data['rotationalSpeed'])
 
         pub.publish(msg)
+        print(f"Sent message: {msg}")
 
 # Simple HTTP Server to serve static files
 class HTTPServer(TCPServer):
@@ -45,7 +47,7 @@ async def main():
     http_server_thread = Thread(target=start_http_server, daemon=True)
     http_server_thread.start()
 
-    async with websockets.serve(echo, "0.0.0.0", 8765):
+    async with websockets.serve(echo, "0.0.0.0", 8765):  # Listen on all interfaces
         await asyncio.Future()  # Run forever
 
 if __name__ == "__main__":

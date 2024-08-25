@@ -257,17 +257,20 @@ connectBtn.addEventListener('click', () => {
     // Initialize WebSocket connection
     webSocket = new WebSocket('ws://185.198.234.13:8765');
 
-    webSocket.onopen = () => {
-        statusDiv.textContent = 'Status: Connected';
+    webSocket.onopen = function(event) {
+        console.log('WebSocket is open now.');
     };
 
-    webSocket.onerror = (error) => {
-        statusDiv.textContent = 'Status: Error';
-        console.error('WebSocket Error:', error);
+    webSocket.onmessage = function(event) {
+        console.log('WebSocket message received:', event.data);
     };
 
-    webSocket.onclose = () => {
-        statusDiv.textContent = 'Status: Disconnected';
+    webSocket.onclose = function(event) {
+        console.log('WebSocket is closed now.');
+    };
+
+    webSocket.onerror = function(event) {
+        console.error('WebSocket error observed:', event);
     };
 });
 
