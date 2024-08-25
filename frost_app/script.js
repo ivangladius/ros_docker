@@ -255,8 +255,8 @@ function toggleMotors() {
 
 connectBtn.addEventListener('click', () => {
     // Initialize WebSocket connection
-    const serverIP = '185.198.234.13'; // Replace with your server's IP address
-    webSocket = new WebSocket(`ws://${serverIP}:8765`);
+    const serverAddress = window.location.hostname;
+    webSocket = new WebSocket(`ws://${serverAddress}:8765`);
 
     webSocket.onopen = function(event) {
         console.log('WebSocket is open now.');
