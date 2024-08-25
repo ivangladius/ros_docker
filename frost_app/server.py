@@ -36,6 +36,11 @@ def start_http_server():
     print("HTTP server is running at http://localhost:8000")
     httpd.serve_forever()
 
+async def start_websocket_server():
+    async with websockets.serve(echo, "localhost", 8765):
+        print("WebSocket server is running at ws://localhost:8765")
+        await asyncio.Future()  # Run forever
+
 async def main():
     global pub
 
@@ -47,8 +52,8 @@ async def main():
     http_server_thread = Thread(target=start_http_server, daemon=True)
     http_server_thread.start()
 
-    async with websockets.serve(echo, "localhost", 8765):  # Listen on localhost
-        await asyncio.Future()  # Run forever
+    # Start WebSocket server
+    await start_websocket_server()
 
 if __name__ == "__main__":
     asyncio.run(main())
