@@ -2,29 +2,34 @@
 import asyncio
 import websockets
 import json
+import argparse
 from http.server import SimpleHTTPRequestHandler
 from socketserver import TCPServer
 import rospy
 
 from frost_msgs.msg import PowertrainCommand
+from geometry_msgs.msg import Twist
 
 pub = None
 
 async def echo(websocket, path):
-
-    msg = PowertrainCommand()
     async for message in websocket:
         data = json.loads(message)
-        print(f"Received message: {data}")
         print(f"Received data: {data}")
 
-        msg.mode = 1
-        msg.enabled = int(data['motorsOn'])
-        msg.trans_vel = float(data['translationalSpeed'])
-        msg.rot_vel = float(data['rotationalSpeed'])
+        mode = data.get('mode', 'robot')
+        if mode == 'robot':
+            msg = PowertrainCommand()
+            msg.mode = 1
+            msg.enabled = int(data['motorsOn'])
+            msg.trans_vel = float(data['translationalSpeed'])
+            msg.rot_vel = float(data['rotationalSpeed'])
+        else:
+            msg = Twist()
+            msg.linear.x = float(data['translationalSpeed'])
+            msg.angular.z = float(data['rotationalSpeed'])
 
         pub.publish(msg)
-        print(f"Sent message: {msg}")
 
 # Simple HTTP Server to serve static files
 class HTTPServer(TCPServer):
@@ -33,18 +38,17 @@ class HTTPServer(TCPServer):
 def start_http_server():
     handler = SimpleHTTPRequestHandler
     httpd = HTTPServer(("0.0.0.0", 8000), handler)
-    print("HTTP server is running at http://0.0.0.0:8000")
+    print("HTTP server is running at http://localhost:8000")
     httpd.serve_forever()
 
-async def start_websocket_server():
-    async with websockets.serve(echo, "0.0.0.0", 8765):
-        print("WebSocket server is running at ws://0.0.0.0:8765")
-        await asyncio.Future()  # Run forever
-
-async def main():
+async def main(mode):
     global pub
 
-    pub = rospy.Publisher('chatter', PowertrainCommand, queue_size=10)
+    if mode == 'real':
+        pub = rospy.Publisher('chatter', PowertrainCommand, queue_size=10)
+    else:
+        pub = rospy.Publisher('/turtle1/cmd_vel', Twist, queue_size=10)
+
     rospy.init_node('talker', anonymous=True)
 
     # Start HTTP server in a new thread
@@ -52,8 +56,12 @@ async def main():
     http_server_thread = Thread(target=start_http_server, daemon=True)
     http_server_thread.start()
 
-    # Start WebSocket server
-    await start_websocket_server()
+    async with websockets.serve(echo, "0.0.0.0", 8765):
+        await asyncio.Future()  # Run forever
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    parser = argparse.ArgumentParser(description='Run the server in either real or turtle mode.')
+    parser.add_argument('mode', choices=['real', 'turtle'], help='Mode to run the server in: real or turtle')
+    args = parser.parse_args()
+
+    asyncio.run(main(args.mode))
