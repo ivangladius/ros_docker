@@ -9,6 +9,14 @@ fi
 CONTAINER_NAME=$1
 IMAGE_NAME=ros_noetic_image
 
+# Ensure the .ssh directory exists in the build context
+if [ ! -d .ssh ]; then
+  mkdir .ssh
+fi
+
+# Copy SSH keys to the build context
+cp -r ~/.ssh/id_rsa ~/.ssh/id_rsa.pub ~/.ssh/known_hosts .ssh/
+
 echo "Checking if container $CONTAINER_NAME exists..."
 
 if [ "$(sudo docker ps -aq -f name=$CONTAINER_NAME)" ]; then
@@ -20,7 +28,6 @@ else
     sudo docker run -d --name $CONTAINER_NAME \
         -e DISPLAY=$DISPLAY \
         -v /tmp/.X11-unix:/tmp/.X11-unix \
-        -v /root/ros_workspace \
         -it $IMAGE_NAME /bin/bash
     if [ $? -ne 0 ]; then
         echo "Failed to create container $CONTAINER_NAME. Check the Docker logs for more information."

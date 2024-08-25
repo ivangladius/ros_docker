@@ -31,14 +31,22 @@ RUN apt-get update && apt-get install -y \
     unzip \
     && rm -rf /var/lib/apt/lists/*
 
-# Create a user for VS Code
-RUN useradd -ms /bin/bash vscode \
-    && echo "vscode ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-
 # Set up SSH server
 RUN mkdir /var/run/sshd \
-    && echo 'PasswordAuthentication yes' >> /etc/ssh/sshd_config \
-    && echo 'vscode:vscode' | chpasswd
+    && echo 'PasswordAuthentication yes' >> /etc/ssh/sshd_config
+
+# Set the working directory to root's home directory
+WORKDIR /root
+
+# Copy the setup script
+COPY setup_catkin.sh .
+
+# Copy SSH keys
+COPY .ssh /root/.ssh
+RUN chmod 600 /root/.ssh/id_rsa && chmod 644 /root/.ssh/id_rsa.pub && chmod 644 /root/.ssh/known_hosts
+
+# Run the setup script
+RUN /bin/bash -c "source /opt/ros/noetic/setup.bash && /root/setup_catkin.sh"
 
 # Expose SSH port
 EXPOSE 22
