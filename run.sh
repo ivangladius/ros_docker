@@ -17,6 +17,7 @@ else
     echo "Creating container $CONTAINER_NAME from image $IMAGE_NAME..."
     sudo xhost +local:root
     sudo docker run -d --name $CONTAINER_NAME \
+        --network host \
         -e DISPLAY=$DISPLAY \
         -v /tmp/.X11-unix:/tmp/.X11-unix \
         -it $IMAGE_NAME /bin/bash
