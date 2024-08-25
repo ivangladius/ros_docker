@@ -47,7 +47,7 @@ async def main():
     http_server_thread = Thread(target=start_http_server, daemon=True)
     http_server_thread.start()
 
-    async with websockets.serve(echo, "0.0.0.0", 8765):  # Listen on all interfaces
+    async with websockets.serve(echo, "localhost", 8765):  # Listen on localhost
         await asyncio.Future()  # Run forever
 
 if __name__ == "__main__":
