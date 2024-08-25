@@ -255,7 +255,7 @@ function toggleMotors() {
 
 connectBtn.addEventListener('click', () => {
     // Initialize WebSocket connection
-    webSocket = new WebSocket('ws://0.0.0.0:8765');
+    webSocket = new WebSocket('ws://localhost:8765');
 
     webSocket.onopen = () => {
         statusDiv.textContent = 'Status: Connected';

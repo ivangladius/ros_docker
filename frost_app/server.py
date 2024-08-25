@@ -30,7 +30,7 @@ class HTTPServer(TCPServer):
 
 def start_http_server():
     handler = SimpleHTTPRequestHandler
-    httpd = HTTPServer(("0.0.0.0", 8000), handler)
+    httpd = HTTPServer(("localhost", 8000), handler)
     print("HTTP server is running at http://localhost:8000")
     httpd.serve_forever()
 
@@ -45,7 +45,7 @@ async def main():
     http_server_thread = Thread(target=start_http_server, daemon=True)
     http_server_thread.start()
 
-    async with websockets.serve(echo, "0.0.0.0", 8765):
+    async with websockets.serve(echo, "localhost", 8765):
         await asyncio.Future()  # Run forever
 
 if __name__ == "__main__":
