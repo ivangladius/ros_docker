@@ -33,12 +33,12 @@ class HTTPServer(TCPServer):
 def start_http_server():
     handler = SimpleHTTPRequestHandler
     httpd = HTTPServer(("0.0.0.0", 8000), handler)
-    print("HTTP server is running at http://localhost:8000")
+    print("HTTP server is running at http://0.0.0.0:8000")
     httpd.serve_forever()
 
 async def start_websocket_server():
-    async with websockets.serve(echo, "localhost", 8765):
-        print("WebSocket server is running at ws://localhost:8765")
+    async with websockets.serve(echo, "0.0.0.0", 8765):
+        print("WebSocket server is running at ws://0.0.0.0:8765")
         await asyncio.Future()  # Run forever
 
 async def main():
