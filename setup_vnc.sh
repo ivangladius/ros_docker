@@ -32,7 +32,7 @@ export DISPLAY=:1
 source /opt/ros/noetic/setup.bash
 roscore &
 sleep 5
-rosrun turtlesim turtlesim_node &
+rosrun turtlesim turtlesim_node
 EOF
 
 # Make the script executable
