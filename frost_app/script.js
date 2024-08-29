@@ -255,7 +255,7 @@ function toggleMotors() {
 
 connectBtn.addEventListener('click', () => {
     if (!webSocket || webSocket.readyState === WebSocket.CLOSED) {
-        webSocket = new WebSocket('ws://localhost:8765');
+        webSocket = new WebSocket('ws://192.168.2.24:8765');
 
         webSocket.onopen = () => {
             console.log('WebSocket connection opened');
@@ -266,8 +266,8 @@ connectBtn.addEventListener('click', () => {
             console.log('Message from server:', event.data);
         };
 
-        webSocket.onclose = () => {
-            console.log('WebSocket connection closed');
+        webSocket.onclose = (event) => {
+            console.log('WebSocket connection closed:', event);
             statusDiv.textContent = 'Status: Disconnected';
         };
 
@@ -317,24 +317,24 @@ function updateGamepadStatus() {
 
 
 function sendData() {
-    const scale = speedScale.value / 100;
-    const maxTransSpeed = parseFloat(maxTranslationalSpeed.value) || 0;
-    const maxRotSpeed = parseFloat(maxRotationalSpeed.value) || 0;
-
-    // Correct the joystick values for translational and rotational speeds
-    const translationalSpeed = maxTransSpeed * scale * joystickY; // Positive Y should move forward
-    const rotationalSpeed = (maxRotSpeed * scale * -joystickX) / 180.0 * Math.PI; // Negative X should turn left
-
-    const mode = document.getElementById('modeSelector').value;
-
-    const data = {
-        translationalSpeed: translationalSpeed.toFixed(2),
-        rotationalSpeed: rotationalSpeed.toFixed(2),
-        motorsOn: motorsSwitch.getAttribute('data-status') === 'on',
-        mode: mode
-    };
-
     if (webSocket && webSocket.readyState === WebSocket.OPEN) {
+        const scale = speedScale.value / 100;
+        const maxTransSpeed = parseFloat(maxTranslationalSpeed.value) || 0;
+        const maxRotSpeed = parseFloat(maxRotationalSpeed.value) || 0;
+
+        // Correct the joystick values for translational and rotational speeds
+        const translationalSpeed = maxTransSpeed * scale * joystickY; // Positive Y should move forward
+        const rotationalSpeed = (maxRotSpeed * scale * -joystickX) / 180.0 * Math.PI; // Negative X should turn left
+
+        const mode = document.getElementById('modeSelector').value;
+
+        const data = {
+            translationalSpeed: translationalSpeed.toFixed(2),
+            rotationalSpeed: rotationalSpeed.toFixed(2),
+            motorsOn: motorsSwitch.getAttribute('data-status') === 'on',
+            mode: mode
+        };
+
         webSocket.send(JSON.stringify(data));
         console.log('Data sent:', data);
     } else {
